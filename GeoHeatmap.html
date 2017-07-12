@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Geo Heatmap</title>
+  <meta charset="utf-8">
+  <link href="GeoHeatmap.css" media="screen" rel="stylesheet" type="text/css"/>
+  <script src="jquery.min.js" type="text/javascript"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjw_fWbWxQ8tTjn_R6S90HqwYCocSoYcI"></script>
+  <script src="GeoHeatmap.js" type="text/javascript"></script>
+  <style>
+    #map-container {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: auto;
+      height: auto;
+    }
+
+    .noselect {
+      -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Chrome/Safari/Opera */
+      -khtml-user-select: none; /* Konqueror */
+      -moz-user-select: none; /* Firefox */
+      -ms-user-select: none; /* Internet Explorer/Edge */
+      user-select: none; /* Non-prefixed version, currently not supported by any browser */
+    }
+  </style>
+  <script type="text/javascript">
+    jQuery.support.cors = true;
+
+    function loadData() {
+      var data = {};
+      // Start loading data simultaneously
+      $.when(
+        // Load the GeoJSON that contains the zipcode boundaries
+        $.getJSON("zipcode_bound_geoJson.json", function (json) {
+          data["zipcode_bound_geoJson"] = json;
+        }).fail(function (response) {
+          console.log("server error when loading zip code bound GeoJson: ", response);
+        }),
+        // Load the table that maps zipcodes, bounds, and center positions
+        $.getJSON("zipcode_bound_info.json", function (json) {
+          data["zipcode_bound_info"] = json["data"];
+        }).fail(function (response) {
+          console.log("server error when loading zipcode bound information:", response);
+        }),
+        // Load metadata
+        $.getJSON("zipcode_metadata.json", function (json) {
+          data["zipcode_metadata"] = json;
+        }).fail(function (response) {
+          console.log("server error when loading zipcode metadata:", response);
+        })
+      ).then(function () {
+        init(data);
+      });
+    }
+
+    function init(data) {
+      var zipcode_metadata = data["zipcode_metadata"];
+      // Create the geo heatmap object
+      var settings = {
+        zipcode_bound_geoJson: data["zipcode_bound_geoJson"],
+        zipcode_bound_info: data["zipcode_bound_info"],
+        zipcode_metadata: zipcode_metadata,
+        info_window_html_layout: function (zipcode) {
+          var html = "";
+          html += "<table>";
+          html += "  <tr>";
+          html += "    <td>Zipcode: " + zipcode + "</td>";
+          html += "  </tr>";
+          html += "  <tr>";
+          html += "    <td>Transformed metadata: " + zipcode_metadata[zipcode] + "</td>";
+          html += "  </tr>";
+          html += "</table>";
+          return html;
+        }
+      };
+      geo_heatmap = new edaplotjs.GeoHeatmap("#map-container", settings);
+
+      // Change metadata on the fly
+      for (var key in zipcode_metadata) {
+        zipcode_metadata[key] *= 1.25;
+      }
+      geo_heatmap.setZipcodeMetadata(zipcode_metadata);
+    }
+
+    $(loadData);
+  </script>
+</head>
+<body>
+<div id="map-container" class="noselect"></div>
+</body>
+</html>
