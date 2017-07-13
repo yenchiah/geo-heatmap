@@ -5,7 +5,7 @@
  * Dependencies: jQuery (http://jquery.com/)
  * Contact: hsu.yenchia@gmail.com
  * License: GNU General Public License v2
- * Version: v1.8
+ * Version: v1.9
  *************************************************************************/
 
 (function () {
@@ -457,6 +457,11 @@
       google_map.setZoom(init_map_zoom);
     };
     this.setToDefaultView = setToDefaultView;
+
+    var getGoogleMap = function () {
+      return google_map;
+    };
+    this.getGoogleMap = getGoogleMap;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
