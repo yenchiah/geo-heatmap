@@ -5,7 +5,7 @@
  * Dependencies: jQuery (http://jquery.com/)
  * Contact: hsu.yenchia@gmail.com
  * License: GNU General Public License v2
- * Version: v1.9
+ * Version: v1.10
  *************************************************************************/
 
 (function () {
@@ -43,6 +43,10 @@
     var max_percentile = settings["max_percentile"];
     var min_percentile = settings["min_percentile"];
 
+    // The threshold in metadata for rendering shape
+    // Zipcodes that have values below or equal to the threshold will be ignored
+    var threshold_metadata = settings["threshold_metadata"];
+
     // This GeoJSON stores the zipcode boundaries (polygons)
     // (created by using the Python script)
     var zipcode_bound_geoJson = settings["zipcode_bound_geoJson"];
@@ -52,6 +56,7 @@
     var zipcode_bound_info = settings["zipcode_bound_info"];
 
     // The metadata for visualizing the color of polygons
+    // Format is {"15213": 25, "15232": 10} where "15213" is zipcode and 25 is value
     var zipcode_metadata = settings["zipcode_metadata"];
 
     // The function for generating html layout for the info window
@@ -144,12 +149,13 @@
     }
 
     function addZipcodeBoundaries() {
-      // Build a map of zipcodes, features, and styles
-      var threshold = 0;
+      var threshold = typeof threshold_metadata === "undefined" ? -1 : threshold_metadata;
       var zipcode_metadata_nz = normalize(zipcode_metadata, {
         max_percentile: max_percentile,
         min_percentile: min_percentile
       });
+
+      // Build a map of zipcodes, features, and styles
       var zipcode_bound_geoJson_features = [];
       for (var i = 0; i < zipcode_bound_geoJson["features"].length; i++) {
         var f = zipcode_bound_geoJson["features"][i];
@@ -182,11 +188,14 @@
           };
         }
       }
-      zipcode_bound_geoJson["features"] = zipcode_bound_geoJson_features;
+
+      // Copy zipcode geoJson
+      var zipcode_bound_geoJson_cp = $.extend({}, zipcode_bound_geoJson);
+      zipcode_bound_geoJson_cp["features"] = zipcode_bound_geoJson_features;
 
       // Add GeoJSON to the map as a data layer
       google_map_data = new google.maps.Data();
-      var features = google_map_data.addGeoJson(zipcode_bound_geoJson);
+      var features = google_map_data.addGeoJson(zipcode_bound_geoJson_cp);
 
       // Add default style
       google_map_data.setStyle(function (feature) {
@@ -412,11 +421,6 @@
       highlighted_feature = event.feature;
     }
 
-    function unhighlightZipcode() {
-      google_map_data.revertStyle();
-      highlighted_feature = undefined;
-    }
-
     function percentile(arr, Q) {
       if (arr.length === 1) return arr[0];
 
@@ -445,23 +449,30 @@
     //
     // Privileged methods
     //
-    var setZipcodeMetadata = function (desired_zipcode_metadata) {
+    var unhighlightZipcode = function () {
+      google_map_data.revertStyle();
+      highlighted_feature = undefined;
+    };
+    this.unhighlightZipcode = unhighlightZipcode;
+
+    this.setZipcodeMetadata = function (desired_zipcode_metadata) {
       zipcode_metadata = desired_zipcode_metadata;
       google_map_data.setMap(null);
       addZipcodeBoundaries();
     };
-    this.setZipcodeMetadata = setZipcodeMetadata;
 
-    var setToDefaultView = function () {
+    this.setToDefaultView = function () {
       google_map.panTo(init_map_center);
       google_map.setZoom(init_map_zoom);
     };
-    this.setToDefaultView = setToDefaultView;
 
-    var getGoogleMap = function () {
+    this.getGoogleMap = function () {
       return google_map;
     };
-    this.getGoogleMap = getGoogleMap;
+
+    this.getInfoWindow = function () {
+      return info_window;
+    };
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

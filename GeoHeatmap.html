@@ -75,6 +75,7 @@
         zipcode_bound_geoJson: data["zipcode_bound_geoJson"],
         zipcode_bound_info: data["zipcode_bound_info"],
         zipcode_metadata: zipcode_metadata,
+        threshold_metadata: 0,
         info_window_html_layout: function (zipcode) {
           var html = "";
           html += "<table>";
@@ -122,16 +123,16 @@
           html += "</table>";
           return html;
         },
-        mouseover_callback: function(zipcode) {
+        mouseover_callback: function (zipcode) {
           console.log("mouseover on zipcode: " + zipcode);
         },
-        mouseout_callback: function(zipcode) {
+        mouseout_callback: function (zipcode) {
           console.log("mouseout on zipcode: " + zipcode);
         },
-        info_window_domready_callback: function(zipcode) {
+        info_window_domready_callback: function (zipcode) {
           console.log("info window domready for zipcode: " + zipcode);
         },
-        info_window_closeclick_callback: function(zipcode) {
+        info_window_closeclick_callback: function (zipcode) {
           console.log("info window closeclick for zipcode: " + zipcode);
         }
       };
