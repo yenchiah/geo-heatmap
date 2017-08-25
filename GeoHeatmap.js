@@ -1,10 +1,5 @@
 /*************************************************************************
- * This library is developed by Yen-Chia Hsu
- * Copyright Yen-Chia Hsu.
  * GitHub: https://github.com/yenchiah/geo-heatmap
- * Dependencies: jQuery (http://jquery.com/)
- * Contact: hsu.yenchia@gmail.com
- * License: GNU General Public License v2
  * Version: v1.12
  *************************************************************************/
 
