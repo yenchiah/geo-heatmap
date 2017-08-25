@@ -75,27 +75,16 @@
         zipcode_bound_geoJson: data["zipcode_bound_geoJson"],
         zipcode_bound_info: data["zipcode_bound_info"],
         zipcode_metadata: zipcode_metadata,
-        threshold_metadata: 0,
-        info_window_html_layout: function (zipcode) {
-          var html = "";
-          html += "<table>";
-          html += "  <tr>";
-          html += "    <td>Zipcode: " + zipcode + "</td>";
-          html += "  </tr>";
-          html += "  <tr>";
-          html += "    <td>Transformed metadata: " + zipcode_metadata[zipcode] + "</td>";
-          html += "  </tr>";
-          html += "</table>";
-          return html;
-        }
+        threshold_metadata: 0
       };
       geo_heatmap_1 = new edaplotjs.GeoHeatmap("#map-container-1", settings_1);
 
       // Change metadata on the fly
-      for (var key in zipcode_metadata) {
-        zipcode_metadata[key] *= 1.25;
+      var zipcode_metadata_cp = $.extend({}, zipcode_metadata);
+      for (var key in zipcode_metadata_cp) {
+        zipcode_metadata_cp[key] *= 1.25;
       }
-      geo_heatmap_1.setZipcodeMetadata(zipcode_metadata);
+      geo_heatmap_1.setZipcodeMetadata(zipcode_metadata_cp);
 
       // Set color scale for displaying the normalized value
       var ncolor_scale = d3.scale.linear()
