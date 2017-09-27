@@ -1,6 +1,6 @@
 /*************************************************************************
  * GitHub: https://github.com/yenchiah/geo-heatmap
- * Version: v1.12
+ * Version: v1.13
  *************************************************************************/
 
 (function () {
@@ -461,6 +461,19 @@
       addZipcodeBoundaries();
     };
 
+    this.setZipcodeMetadataAndColorScale = function (desired_zipcode_metadata, desired_color_scale) {
+      zipcode_metadata = desired_zipcode_metadata;
+      color_scale = desired_color_scale;
+      google_map_data.setMap(null);
+      addZipcodeBoundaries();
+    };
+
+    this.setColorScale = function (desired_color_scale) {
+      color_scale = desired_color_scale;
+      google_map_data.setMap(null);
+      addZipcodeBoundaries();
+    };
+
     this.setToDefaultView = function () {
       google_map.panTo(init_map_center);
       google_map.setZoom(init_map_zoom);
@@ -472,6 +485,14 @@
 
     this.getInfoWindow = function () {
       return info_window;
+    };
+
+    this.hide = function() {
+      $container.hide();
+    };
+
+    this.show = function () {
+      $container.show();
     };
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
