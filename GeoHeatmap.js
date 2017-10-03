@@ -1,6 +1,6 @@
 /*************************************************************************
  * GitHub: https://github.com/yenchiah/geo-heatmap
- * Version: v1.13
+ * Version: v1.14
  *************************************************************************/
 
 (function () {
@@ -22,25 +22,28 @@
     var zipcode_styles = {};
 
     // Settings
-    var init_map_zoom = typeof (settings["init_map_zoom"]) === "undefined" ? 12 : settings["init_map_zoom"];
-    var init_map_center = typeof (settings["init_map_center"]) === "undefined" ? {
+    var init_map_zoom = typeof settings["init_map_zoom"] === "undefined" ? 12 : settings["init_map_zoom"];
+    var init_map_center = typeof settings["init_map_center"] === "undefined" ? {
       lat: 40.43,
       lng: -79.93
     } : settings["init_map_center"];
-    var color_opacity = typeof (settings["color_opacity"]) === "undefined" ? 0.7 : settings["color_opacity"];
+    var color_opacity = typeof settings["color_opacity"] === "undefined" ? 0.7 : settings["color_opacity"];
 
-    // The d3.js color scale object for rendering the geo heatmap
+    // The d3.js color scale object for rendering the geo-heatmap
     // IMPORTANT: this feature requires d3.js (https://d3js.org/)
     var color_scale = settings["color_scale"];
 
-    // The max and min percentiles for normalizing the dataset
-    // (this is more robust than using min and max values)
-    var max_percentile = settings["max_percentile"];
-    var min_percentile = settings["min_percentile"];
+    // The method for scaling data, currently supports "range" and "zscore"
+    var scaling_method = typeof settings["scaling_method"] === "undefined" ? "range" : settings["scaling_method"];
+    var lambda = settings["lambda"]; // the parameter for transforming data to normality
+    var max_output = settings["max_output"]; // to cap the scaled output (only for "zscore" method)
+    var min_output = settings["min_output"]; // to cap the scaled output (only for "zscore" method)
+    var max_percentile = settings["max_percentile"]; // to compute the max value for scaling (only for "range" method)
+    var min_percentile = settings["min_percentile"]; // to compute the min value for scaling (only for "range" method)
 
     // The threshold in metadata for rendering shape
     // Zipcodes that have values below or equal to the threshold will be ignored
-    var threshold_metadata = settings["threshold_metadata"];
+    var threshold_metadata = typeof settings["threshold_metadata"] === "undefined" ? -1 : settings["threshold_metadata"];
 
     // This GeoJSON stores the zipcode boundaries (polygons)
     // (created by using the Python script)
@@ -146,11 +149,22 @@
     }
 
     function addZipcodeBoundaries() {
-      var threshold = typeof threshold_metadata === "undefined" ? -1 : threshold_metadata;
-      var zipcode_metadata_nz = normalize(zipcode_metadata, {
-        max_percentile: max_percentile,
-        min_percentile: min_percentile
-      });
+      var zipcode_metadata_nz;
+      if (scaling_method === "range") {
+        zipcode_metadata_nz = scaleToRange(zipcode_metadata, {
+          lambda: lambda,
+          min_percentile: min_percentile,
+          max_percentile: max_percentile
+        });
+      } else if (scaling_method === "zscore") {
+        zipcode_metadata_nz = scaleToZScore(zipcode_metadata, {
+          min_output: min_output,
+          max_output: max_output
+        });
+      } else {
+        console.error("Scaling method only support 'range' and 'zscore'.");
+        return;
+      }
 
       // Build a map of zipcodes, features, and styles
       var zipcode_bound_geoJson_features = [];
@@ -161,7 +175,7 @@
         var metadata, opacity;
         // If no metadata json, use default values
         if (typeof zipcode_metadata === "undefined") {
-          metadata = threshold + 1;
+          metadata = threshold_metadata + 1;
           opacity = color_opacity;
         } else {
           metadata = zipcode_metadata[zipcode];
@@ -174,7 +188,7 @@
         }
         // If metadata json exists, need to check if the metadata for a zipcode is undefined
         // Do not show the zipcode that has no metadata or above a threshold
-        if (typeof metadata !== "undefined" && metadata > threshold) {
+        if (typeof metadata !== "undefined" && metadata > threshold_metadata) {
           zipcode_bound_geoJson_features.push(f);
           zipcode_styles[zipcode] = {
             fillColor: fill_color,
@@ -315,62 +329,71 @@
       return html;
     }
 
-    // Normalize the values in a dictionary
-    function normalize(dict, options) {
+    // Scale the values in a dictionary to range [0, 1]
+    function scaleToRange(dict, options) {
       if (typeof dict === "undefined") return {};
       if (typeof options === "undefined") options = {};
 
       var lambda = options["lambda"];
+      var dict = typeof lambda === "undefined" ? $.extend({}, dict) : powerTransform(dict, lambda);
       var max_percentile = typeof options["max_percentile"] === "undefined" ? 1 : options["max_percentile"];
       var min_percentile = typeof options["min_percentile"] === "undefined" ? 0 : options["min_percentile"];
-      var desired_max = typeof options["desired_max"] === "undefined" ? 1 : options["desired_max"];
-      var desired_min = typeof options["desired_min"] === "undefined" ? 0 : options["desired_min"];
-      var dict_trans = typeof lambda === "undefined" ? $.extend({}, dict) : powerTransform(dict, lambda);
-
-      // Normalization
+      var max_output = 1;
+      var min_output = 0;
       var dict_nz = {};
       //var values = Object.values(dict_trans); // IE not happy about this
-      var values = Object.keys(dict_trans).map(function(k) {
-        return dict_trans[k];
+      var values = Object.keys(dict).map(function (k) {
+        return dict[k];
       });
-      var max = percentile(values, max_percentile);
-      var min = percentile(values, min_percentile);
-      var z = max - min;
-      for (var key in dict_trans) {
-        var tmp = (dict_trans[key] - min) / z;
-        // Cap the result in range [desired_min, desired_max]
-        if (tmp > desired_max) {
-          tmp = desired_max;
-        } else if (tmp < desired_min) {
-          tmp = desired_min
-        }
-        dict_nz[key] = tmp;
-      }
 
+      // Scale to the desired range
+      var max_input = percentile(values, max_percentile);
+      var min_input = percentile(values, min_percentile);
+      var r = (max_output - min_output) / (max_input - min_input);
+      for (var key in dict) {
+        var v = r * (dict[key] - min_input) + min_output;
+        if (v < min_output) v = min_output;
+        if (v > max_output) v = max_output;
+        dict_nz[key] = v;
+      }
       return dict_nz;
     }
 
-    function computePercentageWithinStd(arr, n_sigma) {
+    // Scale the values in a dictionary to z-scores
+    function scaleToZScore(dict, options) {
+      if (typeof dict === "undefined") return {};
+      if (typeof options === "undefined") options = {};
+
+      var max_output = typeof options["max_output"] === "undefined" ? 3 : options["max_output"];
+      var min_output = typeof options["min_output"] === "undefined" ? -3 : options["min_output"];
+      var dict_nz = {};
+      //var values = Object.values(dict_trans); // IE not happy about this
+      var values = Object.keys(dict).map(function (k) {
+        return dict[k];
+      });
+
       // Compute mean
       var sum = 0;
-      arr.forEach(function (x) {
+      values.forEach(function (x) {
         sum += x;
       });
-      var mean = sum / arr.length;
+      var mean = sum / values.length;
 
       // Compute std
       var res_sq = 0;
-      arr.forEach(function (x) {
+      values.forEach(function (x) {
         res_sq += Math.pow((x - mean), 2);
       });
-      var std = Math.pow(res_sq / (arr.length - 1), 0.5);
+      var std = Math.pow(res_sq / (values.length - 1), 0.5);
 
       // Compute z-score
-      var n = 0;
-      arr.forEach(function (x) {
-        if (Math.abs((x - mean) / std) <= n_sigma) n++;
-      });
-      return n / arr.length;
+      for (var key in dict) {
+        var v = (dict[key] - mean) / std;
+        if (v < min_output) v = min_output;
+        if (v > max_output) v = max_output;
+        dict_nz[key] = v;
+      }
+      return dict_nz;
     }
 
     function powerTransform(dict, lambda) {
@@ -397,7 +420,6 @@
           dict_trans[key] = x > 0 ? (Math.pow(x, lambda) - 1) / (lambda * Math.pow(gm * Math.log(x), lambda - 1)) : 0;
         }
       }
-
       return dict_trans;
     }
 
@@ -487,7 +509,7 @@
       return info_window;
     };
 
-    this.hide = function() {
+    this.hide = function () {
       $container.hide();
     };
 

@@ -75,30 +75,18 @@
         zipcode_bound_geoJson: data["zipcode_bound_geoJson"],
         zipcode_bound_info: data["zipcode_bound_info"],
         zipcode_metadata: zipcode_metadata,
-        threshold_metadata: 0
+        threshold_metadata: 0,
+        lambda: -1
       };
       geo_heatmap_1 = new edaplotjs.GeoHeatmap("#map-container-1", settings_1);
-
-      // Change metadata on the fly
-      var zipcode_metadata_cp = $.extend({}, zipcode_metadata);
-      for (var key in zipcode_metadata_cp) {
-        zipcode_metadata_cp[key] *= 1.25;
-      }
-      geo_heatmap_1.setZipcodeMetadata(zipcode_metadata_cp);
-
-      // Set color scale for displaying the normalized value
-      var ncolor_scale = d3.scale.linear()
-        .domain([0, 0.25, 0.75, 1])
-        .range(["#00a511", "#fff200", "#ff6200", "#ff0000"])
-        .interpolate(d3.interpolateLab);
 
       // Create the geo heatmap object
       var settings_2 = {
         zipcode_bound_geoJson: data["zipcode_bound_geoJson"],
         zipcode_bound_info: data["zipcode_bound_info"],
         zipcode_metadata: zipcode_metadata,
-        color_scale: ncolor_scale,
-        max_percentile: 0.95,
+        color_scale: d3.scale.linear().domain([0, 0.33, 0.66, 1]).range(["#00a511", "#fff200", "#ff6200", "#ff0000"]).interpolate(d3.interpolateLab),
+        max_percentile: 0.99,
         min_percentile: 0.05,
         info_window_html_layout: function (zipcode) {
           var html = "";
@@ -107,7 +95,7 @@
           html += "    <td>Zipcode: " + zipcode + "</td>";
           html += "  </tr>";
           html += "  <tr>";
-          html += "    <td>Metadata: " + zipcode_metadata[zipcode] + "</td>";
+          html += "    <td>Custom Data: " + zipcode_metadata[zipcode] + "</td>";
           html += "  </tr>";
           html += "</table>";
           return html;
