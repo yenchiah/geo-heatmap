@@ -6,6 +6,7 @@ This JavaScript library is for creating an interactive geographical heatmap. Thi
 
 # Dependencies
 jQuery (necessary, https://jquery.com/)
+
 d3 (optional, version 3, https://d3js.org/)
 
 # Usage
