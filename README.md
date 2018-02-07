@@ -46,7 +46,7 @@ $.when(
 });
 ```
 
-Third, to create the heatmap, pass in the DOM container id and the following settings to create a heatmap with single color scale:
+Third, to create the heatmap, pass in the DOM container id and the following settings to create a heatmap with a single color scale:
 ```JavaScript
 function init(data) {
   var settings = {
