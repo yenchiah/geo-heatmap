@@ -1,6 +1,6 @@
 /*************************************************************************
  * GitHub: https://github.com/yenchiah/geo-heatmap
- * Version: v1.14
+ * Version: v1.15
  *************************************************************************/
 
 (function () {
@@ -28,6 +28,7 @@
       lng: -79.93
     } : settings["init_map_center"];
     var color_opacity = typeof settings["color_opacity"] === "undefined" ? 0.7 : settings["color_opacity"];
+    var color_single = typeof settings["color_single"] === "undefined" ? "#ff0000" : settings["color_single"];
 
     // The d3.js color scale object for rendering the geo-heatmap
     // IMPORTANT: this feature requires d3.js (https://d3js.org/)
@@ -171,7 +172,7 @@
       for (var i = 0; i < zipcode_bound_geoJson["features"].length; i++) {
         var f = zipcode_bound_geoJson["features"][i];
         var zipcode = f["properties"]["ZCTA5CE10"];
-        var fill_color = "#ff0000";
+        var fill_color = color_single;
         var metadata, opacity;
         // If no metadata json, use default values
         if (typeof zipcode_metadata === "undefined") {
