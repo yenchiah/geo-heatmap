@@ -18,7 +18,7 @@ First, get a [Google Map JavaScript API key](https://developers.google.com/maps/
 <script src="GeoHeatmap.js" type="text/javascript"></script>
 ```
 
-Remember to replace the [YOUR API KEY] with your key. The key provided in this repository is restricted to demo purposes. Second, you need to prepare three files, **zipcode_bound_geoJson.json**, **zipcode_bound_info.json**, and **zipcode_metadata.json**. See the example files in this repository for their formats. For **zipcode_bound_geoJson.json** and **zipcode_bound_info.json**, you need to download the ZCTA5 json file from [data.gov](https://catalog.data.gov/dataset/zip-codetabilation-area-boundaries/resource/ea476dcb-4846-4242-9fb3-d41afb13bf52) and choose the zipcode boundaries that you want for the heatmap. Then, use jQuery to load these data simultaneously:
+Remember to replace the [YOUR API KEY] with your key. The key provided in this repository is restricted to demo purposes. Second, you need to prepare three json files, zipcode_bound_geoJson, zipcode_bound_info, and zipcode_metadata. See the example files in this repository for their formats. For zipcode_bound_geoJson and zipcode_bound_info, you need to download the ZCTA5 json file from [data.gov](https://catalog.data.gov/dataset/zip-codetabilation-area-boundaries/resource/ea476dcb-4846-4242-9fb3-d41afb13bf52) and choose the zipcode boundaries that you want for the heatmap. Then, use jQuery to load these data simultaneously:
 ```JavaScript
 var data = {};
 // Start loading data simultaneously
