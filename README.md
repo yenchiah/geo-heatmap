@@ -233,23 +233,27 @@ settings["info_window_closeclick_callback"] = function (zipcode) {
 # Public Methods
 
 ### unhighlightZipcode()
+Unhighlight all zipcode regions that are selected by users.
 ```JavaScript
 geo_heatmap.unhighlightZipcode();
 ```
 
 ### setZipcodeMetadata(desired_zipcode_metadata)
+Replace the current zipcode metadata to another dataset.
 ```JavaScript
 d = {"15213": 25, "15232": 10};
 geo_heatmap.setZipcodeMetadata(d);
 ```
 
 ### setColorScale(desired_color_scale)
+Replace the current color scale to another scale.
 ```JavaScript
 s = d3.scale.linear().domain([0, 0.33, 0.66, 1]).range(["#00a511", "#fff200", "#ff6200", "#ff0000"]).interpolate(d3.interpolateLab);
 geo_heatmap.setColorScale(s);
 ```
 
 ### setZipcodeMetadataAndColorScale(desired_zipcode_metadata, desired_color_scale)
+Replace the current zipcode metadata and color scale to other dataset and scale.
 ```JavaScript
 d = {"15213": 25, "15232": 10};
 s = d3.scale.linear().domain([0, 0.33, 0.66, 1]).range(["#00a511", "#fff200", "#ff6200", "#ff0000"]).interpolate(d3.interpolateLab);
@@ -257,25 +261,30 @@ geo_heatmap.setZipcodeMetadataAndColorScale(d, s);
 ```
 
 ### setToDefaultView()
+Set the map to the default center and zoom level, which are defined in the settings.
 ```JavaScript
 geo_heatmap.setToDefaultView();
 ```
 
 ### getGoogleMap()
+Get the [Google map object](https://developers.google.com/maps/documentation/javascript/reference#Map).
 ```JavaScript
 gm = geo_heatmap.getGoogleMap();
 ```
 
 ### getInfoWindow()
+Get the [Google map infowindow object](https://developers.google.com/maps/documentation/javascript/reference#InfoWindow).
 ```JavaScript
 iw = geo_heatmap.getInfoWindow();
 ```
 
 ### hide()
+Hide the heatmap.
 ```JavaScript
 geo_heatmap.hide();
 ```
 ### show()
+Show the heatmap.
 ```JavaScript
 geo_heatmap.show();
 ```
