@@ -123,16 +123,11 @@ settings["zipcode_bound_info"] = {
   "15205": [-80.172815, 40.408126, -80.040698, 40.459977, -80.106757, 40.4340515]}
 ```
 
-### "init_map_zoom"
-The initial zoom level of the Google map.
+### "init_map_zoom" and "init_map_center"
+The initial zoom level and center location of the Google map.
 ```JavaScript
 settings["init_map_zoom"] = 12
-```
-
-### "init_map_center"
-The initial center location of the Google map in latitude and longitude.
-```JavaScript
-settings["init_map_zoom"] = {lat: 40.43, lng: -79.93}
+settings["init_map_center"] = {lat: 40.43, lng: -79.93} // latitude and longitude.
 ```
 
 ### "color_single"
@@ -142,7 +137,7 @@ settings["color_single"] = "#ff0000"
 ```
 
 ### "color_scale"
-The d3 color scale object for rendering the color of zipcode regions. This feature requires [d3.js](https://d3js.org/) version 3.
+The d3 color scale object for rendering the color of zipcode regions. This feature requires [d3.js](https://d3js.org/), which is already included in this repository.
 ```JavaScript
 settings["color_scale"] = d3.scale.linear().domain([0, 0.33, 0.66, 1]).range(["#00a511", "#fff200", "#ff6200", "#ff0000"]).interpolate(d3.interpolateLab)
 ```
@@ -151,5 +146,31 @@ settings["color_scale"] = d3.scale.linear().domain([0, 0.33, 0.66, 1]).range(["#
 The opacity of zipcode regions, ranging from 0 to 1. If there is no zipcode metadata, all zipcode regions will have opacity equal to this setting. If there is both zipcode metadata and color scale, the color of zipcode regions is determined by the scale and the opacity is defined by this setting. This setting does not work when there is zipcode metadata but no color scale, where the opacity is automatically computed based on the zipcode metadata.
 ```JavaScript
 settings["color_opacity"] = 0.7
+```
+
+### "scaling_method"
+The method for scaling data, currently supports "range" and "zscore". When the method is "range", the metadata for all zipcodes is scaled to values between 0 and 1. When the method is "zscore", the metadata for all zipcodes is transformed to [z-scores](https://en.wikipedia.org/wiki/Standard_score), i.e. signed number of standard deviations away from the mean. The scaled values determine the opacities for zipcode regions on the map (when there is no color scale), or particular colors (when there is a color scale). 
+```JavaScript
+settings["scaling_method"] = "range" // can also be "zscore"
+```
+
+### "lambda"
+The parameter for performing a [power transform](https://en.wikipedia.org/wiki/Power_transform) to scale data to have the distribution be close to a normal distribution. This setting only works when the "scaling_method" is "range".
+```JavaScript
+settings["lambda"] = -1
+```
+
+### "max_output" and "min_output"
+The parameters to cap the maximum and minimum values of the scaled z-scores. These two parameters are used to limit the influence of extremely high or low values when visualizing data. This setting only works when "scaling_method" is "zscore".
+```JavaScript
+settings["max_output"] = 3
+settings["min_output"] = -3
+```
+
+### "max_percentile" and "min_percentile"
+The parameters to determine the maximum and minimum percentiles of the input zipcode metadata. For example, if "max_percentile" is 0.5, all metadata that are larger than the mean will be scaled to 1. If "min_percentile" is 0.5, all metadata that are smaller than the mean will be scaled to 0. These two parameters are used to limit the influence of extremely high or low values when visualizing data. This setting only works when "scaling_method" is "range".
+```JavaScript
+settings["max_percentile"] = 0.99
+settings["min_percentile"] = 0.05
 ```
 
