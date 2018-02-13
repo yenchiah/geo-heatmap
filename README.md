@@ -103,4 +103,53 @@ The following sections show parameters that you can specify in "settings" and th
 
 # Settings
 
-under construction...
+### "zipcode_metadata"
+The json file for visualizing the zipcode regions. The format is {"zipcode": value}. Values represent data in the zipcode, for instance, number of people. See file [zipcode_metadata](https://github.com/yenchiah/geo-heatmap/blob/master/zipcode_metadata.json) for an example.
+```JavaScript
+settings["zipcode_metadata"] = {"15213": 25, "15232": 10}
+```
+
+### "zipcode_bound_geoJson"
+The GeoJSON file that stores the zipcode boundaries (polygons). See file [zipcode_bound_geoJson](https://github.com/yenchiah/geo-heatmap/blob/master/zipcode_bound_geoJson.json) for an example. You need to select the boundaries from the [ZCTA5](https://catalog.data.gov/dataset/zip-codetabilation-area-boundaries/resource/ea476dcb-4846-4242-9fb3-d41afb13bf52).
+```JavaScript
+settings["zipcode_bound_geoJson"] = zipcode_bound_geoJson
+```
+
+### "zipcode_bound_info"
+The json file that stores the mapping of zipcode, bounding boxes, and center positions. The format is "zipcode": ["min_lng", "min_lat", "max_lng", "max_lat", "center_lng", "center_lat"], where lat means latitude, lng means longitude. See file [zipcode_bound_info](https://github.com/yenchiah/geo-heatmap/blob/master/zipcode_bound_info.json) for an example.
+```JavaScript
+settings["zipcode_bound_info"] = {
+  "15202": [-80.108617, 40.482170, -80.033285, 40.521929, -80.070951, 40.5020495],
+  "15205": [-80.172815, 40.408126, -80.040698, 40.459977, -80.106757, 40.4340515]}
+```
+
+### "init_map_zoom"
+The initial zoom level of the Google map.
+```JavaScript
+settings["init_map_zoom"] = 12
+```
+
+### "init_map_center"
+The initial center location of the Google map in latitude and longitude.
+```JavaScript
+settings["init_map_zoom"] = {lat: 40.43, lng: -79.93}
+```
+
+### "color_single"
+The base color to fill in the zipcode regions when there is no color scale.
+```JavaScript
+settings["color_single"] = "#ff0000"
+```
+
+### "color_scale"
+The d3 color scale object for rendering the color of zipcode regions. This feature requires [d3.js](https://d3js.org/) version 3.
+```JavaScript
+settings["color_scale"] = d3.scale.linear().domain([0, 0.33, 0.66, 1]).range(["#00a511", "#fff200", "#ff6200", "#ff0000"]).interpolate(d3.interpolateLab)
+```
+
+### "color_opacity"
+The opacity of zipcode regions, ranging from 0 to 1. If there is no zipcode metadata, all zipcode regions will have opacity equal to this setting. If there is both zipcode metadata and color scale, the color of zipcode regions is determined by the scale and the opacity is defined by this setting. This setting does not work when there is zipcode metadata but no color scale, where the opacity is automatically computed based on the zipcode metadata.
+```JavaScript
+settings["color_opacity"] = 0.7
+```
+
