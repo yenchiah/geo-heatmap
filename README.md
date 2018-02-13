@@ -106,13 +106,13 @@ The following sections show parameters that you can specify in "settings" and th
 ### "zipcode_metadata"
 The json file for visualizing the zipcode regions. The format is {"zipcode": value}. Values represent data in the zipcode, for instance, number of people. See file [zipcode_metadata](https://github.com/yenchiah/geo-heatmap/blob/master/zipcode_metadata.json) for an example.
 ```JavaScript
-settings["zipcode_metadata"] = {"15213": 25, "15232": 10}
+settings["zipcode_metadata"] = {"15213": 25, "15232": 10};
 ```
 
 ### "zipcode_bound_geoJson"
 The GeoJSON file that stores the zipcode boundaries (polygons). See file [zipcode_bound_geoJson](https://github.com/yenchiah/geo-heatmap/blob/master/zipcode_bound_geoJson.json) for an example. You need to select the boundaries from the [ZCTA5](https://catalog.data.gov/dataset/zip-codetabilation-area-boundaries/resource/ea476dcb-4846-4242-9fb3-d41afb13bf52).
 ```JavaScript
-settings["zipcode_bound_geoJson"] = zipcode_bound_geoJson
+settings["zipcode_bound_geoJson"] = zipcode_bound_geoJson;
 ```
 
 ### "zipcode_bound_info"
@@ -120,64 +120,65 @@ The json file that stores the mapping of zipcode, bounding boxes, and center pos
 ```JavaScript
 settings["zipcode_bound_info"] = {
   "15202": [-80.108617, 40.482170, -80.033285, 40.521929, -80.070951, 40.5020495],
-  "15205": [-80.172815, 40.408126, -80.040698, 40.459977, -80.106757, 40.4340515]}
+  "15205": [-80.172815, 40.408126, -80.040698, 40.459977, -80.106757, 40.4340515]
+};
 ```
 
 ### "init_map_zoom" and "init_map_center"
 The initial zoom level and center location of the Google map.
 ```JavaScript
-settings["init_map_zoom"] = 12
-settings["init_map_center"] = {lat: 40.43, lng: -79.93} // latitude and longitude.
+settings["init_map_zoom"] = 12;
+settings["init_map_center"] = {lat: 40.43, lng: -79.93}; // latitude and longitude
 ```
 
 ### "color_single"
 The base color to fill in the zipcode regions when there is no color scale.
 ```JavaScript
-settings["color_single"] = "#ff0000"
+settings["color_single"] = "#ff0000";
 ```
 
 ### "color_scale"
 The d3 color scale object for rendering the color of zipcode regions. This feature requires [d3.js](https://d3js.org/), which is already included in this repository.
 ```JavaScript
-settings["color_scale"] = d3.scale.linear().domain([0, 0.33, 0.66, 1]).range(["#00a511", "#fff200", "#ff6200", "#ff0000"]).interpolate(d3.interpolateLab)
+settings["color_scale"] = d3.scale.linear().domain([0, 0.33, 0.66, 1]).range(["#00a511", "#fff200", "#ff6200", "#ff0000"]).interpolate(d3.interpolateLab);
 ```
 
 ### "color_opacity"
 The opacity of zipcode regions, ranging from 0 to 1. If there is no zipcode metadata, all zipcode regions will have opacity equal to this setting. If there is both zipcode metadata and color scale, the color of zipcode regions is determined by the scale and the opacity is defined by this setting. This setting does not work when there is zipcode metadata but no color scale, where the opacity is automatically computed based on the zipcode metadata.
 ```JavaScript
-settings["color_opacity"] = 0.7
+settings["color_opacity"] = 0.7;
 ```
 
 ### "scaling_method"
 The method for scaling data, currently supports "range" and "zscore". When the method is "range", the metadata for all zipcodes is scaled to values between 0 and 1. When the method is "zscore", the metadata for all zipcodes is transformed to [z-scores](https://en.wikipedia.org/wiki/Standard_score), i.e. signed number of standard deviations away from the mean. The scaled values determine the opacities for zipcode regions on the map (when there is no color scale), or particular colors (when there is a color scale). 
 ```JavaScript
-settings["scaling_method"] = "range" // can also be "zscore"
+settings["scaling_method"] = "range"; // can also be "zscore"
 ```
 
 ### "lambda"
 The parameter for performing a [power transform](https://en.wikipedia.org/wiki/Power_transform) to scale data to have the distribution be close to a normal distribution. This setting only works when the "scaling_method" is "range".
 ```JavaScript
-settings["lambda"] = -1
+settings["lambda"] = -1;
 ```
 
 ### "max_output" and "min_output"
 The parameters to cap the maximum and minimum values of the scaled z-scores. These two parameters are used to limit the influence of extremely high or low values when visualizing data. This setting only works when "scaling_method" is "zscore".
 ```JavaScript
-settings["max_output"] = 3
-settings["min_output"] = -3
+settings["max_output"] = 3;
+settings["min_output"] = -3;
 ```
 
 ### "max_percentile" and "min_percentile"
 The parameters to determine the maximum and minimum percentiles of the input zipcode metadata. For example, if "max_percentile" is 0.5, all metadata that are larger than the mean will be scaled to 1. If "min_percentile" is 0.5, all metadata that are smaller than the mean will be scaled to 0. These two parameters are used to limit the influence of extremely high or low values when visualizing data. This setting only works when "scaling_method" is "range".
 ```JavaScript
-settings["max_percentile"] = 0.99
-settings["min_percentile"] = 0.05
+settings["max_percentile"] = 0.99;
+settings["min_percentile"] = 0.05;
 ```
 
 ### "threshold_metadata"
 The parameter for filteing metadata that have small values. For instance, if "threshold_metadata" is 0, zipcode regions that have metadata below or equal to 0 will not be displayed on the map.
 ```JavaScript
-settings["threshold_metadata"] = 0
+settings["threshold_metadata"] = 0;
 ```
 
 ### "info_window_html_layout"
@@ -194,38 +195,87 @@ settings["info_window_html_layout"] = function (zipcode) {
   html += "  </tr>";
   html += "</table>";
   return html;
-}
+};
 ```
 
 ### "mouseover_callback"
+The event listener when users mouse over a zipcode region. 
+```JavaScript
+settings["mouseover_callback"] = function (zipcode) {
+  console.log("mouseover on zipcode: " + zipcode);
+};
+```
 
 ### "mouseout_callback"
+The event listener when users mouse out a zipcode region. 
+```JavaScript
+settings["mouseout_callback"] = function (zipcode) {
+  console.log("mouseout on zipcode: " + zipcode);
+};
+```
 
 ### "info_window_domready_callback"
+The event listener when an info window is ready and displayed. 
+```JavaScript
+settings["info_window_domready_callback"] = function (zipcode) {
+  console.log("info window domready for zipcode: " + zipcode);
+};
+```
 
 ### "info_window_closeclick_callback"
+The event listener when an info window is closed. 
+```JavaScript
+settings["info_window_closeclick_callback"] = function (zipcode) {
+  console.log("info window closeclick for zipcode: " + zipcode);
+};
+```
 
 # Public Methods
 
 ### unhighlightZipcode()
+```JavaScript
+geo_heatmap.unhighlightZipcode();
+```
 
 ### setZipcodeMetadata(desired_zipcode_metadata)
+```JavaScript
+d = {"15213": 25, "15232": 10};
+geo_heatmap.setZipcodeMetadata(d);
+```
 
 ### setColorScale(desired_color_scale)
+```JavaScript
+s = d3.scale.linear().domain([0, 0.33, 0.66, 1]).range(["#00a511", "#fff200", "#ff6200", "#ff0000"]).interpolate(d3.interpolateLab);
+geo_heatmap.setColorScale(s);
+```
 
 ### setZipcodeMetadataAndColorScale(desired_zipcode_metadata, desired_color_scale)
+```JavaScript
+d = {"15213": 25, "15232": 10};
+s = d3.scale.linear().domain([0, 0.33, 0.66, 1]).range(["#00a511", "#fff200", "#ff6200", "#ff0000"]).interpolate(d3.interpolateLab);
+geo_heatmap.setZipcodeMetadataAndColorScale(d, s);
+```
 
 ### setToDefaultView()
+```JavaScript
+geo_heatmap.setToDefaultView();
+```
 
 ### getGoogleMap()
+```JavaScript
+gm = geo_heatmap.getGoogleMap();
+```
 
 ### getInfoWindow()
+```JavaScript
+iw = geo_heatmap.getInfoWindow();
+```
 
 ### hide()
-
+```JavaScript
+geo_heatmap.hide();
+```
 ### show()
-
-
-
-
-
+```JavaScript
+geo_heatmap.show();
+```
