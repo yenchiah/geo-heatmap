@@ -63,7 +63,7 @@ function init(data) {
 For creating a map with a d3 color scale and custom info window, use the following settings:
 ```JavaScript
 function init(data) {
-  var settings_2 = {
+  var settings = {
     zipcode_bound_geoJson: data["zipcode_bound_geoJson"],
     zipcode_bound_info: data["zipcode_bound_info"],
     zipcode_metadata: data["zipcode_metadata"],
