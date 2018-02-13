@@ -174,3 +174,58 @@ settings["max_percentile"] = 0.99
 settings["min_percentile"] = 0.05
 ```
 
+### "threshold_metadata"
+The parameter for filteing metadata that have small values. For instance, if "threshold_metadata" is 0, zipcode regions that have metadata below or equal to 0 will not be displayed on the map.
+```JavaScript
+settings["threshold_metadata"] = 0
+```
+
+### "info_window_html_layout"
+The function that returns a html layout for displaying the info window when users select a zipcode region. See the [demo html file](https://github.com/yenchiah/geo-heatmap/blob/master/GeoHeatmap.html) for an example.
+```JavaScript
+settings["info_window_html_layout"] = function (zipcode) {
+  var html = "";
+  html += "<table>";
+  html += "  <tr>";
+  html += "    <td>Zipcode: " + zipcode + "</td>";
+  html += "  </tr>";
+  html += "  <tr>";
+  html += "    <td>Custom Data: " + zipcode_metadata[zipcode] + "</td>";
+  html += "  </tr>";
+  html += "</table>";
+  return html;
+}
+```
+
+### "mouseover_callback"
+
+### "mouseout_callback"
+
+### "info_window_domready_callback"
+
+### "info_window_closeclick_callback"
+
+# Public Methods
+
+### unhighlightZipcode()
+
+### setZipcodeMetadata(desired_zipcode_metadata)
+
+### setColorScale(desired_color_scale)
+
+### setZipcodeMetadataAndColorScale(desired_zipcode_metadata, desired_color_scale)
+
+### setToDefaultView()
+
+### getGoogleMap()
+
+### getInfoWindow()
+
+### hide()
+
+### show()
+
+
+
+
+
