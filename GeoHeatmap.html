@@ -4,10 +4,12 @@
   <title>Geo Heatmap</title>
   <meta charset="utf-8">
   <link href="GeoHeatmap.css" media="screen" rel="stylesheet" type="text/css"/>
+  <link href="ColorScaleLegend.css" media="screen" rel="stylesheet" type="text/css"/>
   <script src="jquery.min.js" type="text/javascript"></script>
   <script src="d3.v3.min.js"></script>
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjw_fWbWxQ8tTjn_R6S90HqwYCocSoYcI"></script>
   <script src="GeoHeatmap.js" type="text/javascript"></script>
+  <script src="ColorScaleLegend.js" type="text/javascript"></script>
   <style>
     #map-container-1 {
       position: absolute;
@@ -28,6 +30,16 @@
       height: auto;
     }
 
+    #color-legend-container-2 {
+      position: absolute;
+      width: 40px;
+      height: 150px;
+      border: 1px solid #666666;
+      right: 20px;
+      z-index: 1;
+      bottom: 20px;
+    }
+
     .noselect {
       -webkit-touch-callout: none; /* iOS Safari */
       -webkit-user-select: none; /* Chrome/Safari/Opera */
@@ -42,6 +54,7 @@
 
     function loadData() {
       var data = {};
+      var url = "http://api.smellpittsburgh.org/api/v2/smell_reports?zipcodes=15221,15218,15222,15219,15201,15224,15213,15232,15206,15208,15217,15207,15260,15104&group_by=zipcode&aggregate=true&start_time=1475988960&end_time=1523768160";
       // Start loading data simultaneously
       $.when(
         // Load the GeoJSON that contains the zipcode boundaries
@@ -57,6 +70,7 @@
           console.log("server error when loading zipcode bound information:", response);
         }),
         // Load metadata
+        //$.getJSON(url, function (json) {
         $.getJSON("zipcode_metadata.json", function (json) {
           data["zipcode_metadata"] = json;
         }).fail(function (response) {
@@ -76,16 +90,17 @@
         zipcode_bound_info: data["zipcode_bound_info"],
         zipcode_metadata: zipcode_metadata,
         threshold_metadata: 0,
-        lambda: -1
+        lambda: 0.5
       };
       geo_heatmap_1 = new edaplotjs.GeoHeatmap("#map-container-1", settings_1);
 
       // Create the geo heatmap object
+      var color_scale = d3.scale.linear().domain([0, 0.33, 0.66, 1]).range(["#00a511", "#fff200", "#ff6200", "#ff0000"]).interpolate(d3.interpolateLab);
       var settings_2 = {
         zipcode_bound_geoJson: data["zipcode_bound_geoJson"],
         zipcode_bound_info: data["zipcode_bound_info"],
         zipcode_metadata: zipcode_metadata,
-        color_scale: d3.scale.linear().domain([0, 0.33, 0.66, 1]).range(["#00a511", "#fff200", "#ff6200", "#ff0000"]).interpolate(d3.interpolateLab),
+        color_scale: color_scale,
         max_percentile: 0.99,
         min_percentile: 0.05,
         info_window_html_layout: function (zipcode) {
@@ -114,6 +129,7 @@
         }
       };
       geo_heatmap_2 = new edaplotjs.GeoHeatmap("#map-container-2", settings_2);
+      color_legned_2 = new edaplotjs.ColorScaleLegend("#color-legend-container-2", {color_scale: color_scale});
     }
 
     $(loadData);
@@ -122,5 +138,6 @@
 <body>
 <div id="map-container-1" class="noselect"></div>
 <div id="map-container-2" class="noselect"></div>
+<div id="color-legend-container-2" class="noselect"></div>
 </body>
 </html>
