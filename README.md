@@ -2,7 +2,7 @@
 
 Demo: https://yenchiah.github.io/geo-heatmap/GeoHeatmap.html
 
-This JavaScript library is for creating an interactive geographical heatmap. This library uses Google map's [data layer](https://developers.google.com/maps/documentation/javascript/examples/layer-data-dynamic) to show GeoJSON zipcode boundaries. These zipcode boundaries are processed and downloaded from [data.gov](https://catalog.data.gov/dataset/zip-codetabilation-area-boundaries/resource/ea476dcb-4846-4242-9fb3-d41afb13bf52). The polygons on the map can be colored by using [d3-scale](https://github.com/d3/d3-scale). One example that uses this library is the [Environmental Health Channel](http://envhealthchannel.org/).
+This JavaScript library is for creating an interactive geographical heatmap. This library uses Google map's [data layer](https://developers.google.com/maps/documentation/javascript/examples/layer-data-dynamic) to show GeoJSON zipcode boundaries. For obtaining the ZCTA5 GeoJSON, please refer to [this project] (https://github.com/jgoodall/us-maps). The polygons on the map can be colored by using [d3-scale](https://github.com/d3/d3-scale). One example that uses this library is the [Environmental Health Channel](http://envhealthchannel.org/).
 
 # Dependencies
 jQuery (necessary, https://jquery.com/)  
@@ -18,7 +18,7 @@ First, get a [Google Map JavaScript API key](https://developers.google.com/maps/
 <script src="GeoHeatmap.js" type="text/javascript"></script>
 ```
 
-Remember to replace the [YOUR API KEY] with your key. The key provided in this repository is restricted to demo purposes. Second, you need to prepare three json files, zipcode_bound_geoJson, zipcode_bound_info, and zipcode_metadata. See the example files in this repository for their formats. For zipcode_bound_geoJson and zipcode_bound_info, you need to download the ZCTA5 json file from [data.gov](https://catalog.data.gov/dataset/zip-codetabilation-area-boundaries/resource/ea476dcb-4846-4242-9fb3-d41afb13bf52) and choose the zipcode boundaries that you want for the heatmap. Then, use jQuery to load these data simultaneously:
+Remember to replace the [YOUR API KEY] with your key. The key provided in this repository is restricted to demo purposes. Second, you need to prepare three json files, zipcode_bound_geoJson, zipcode_bound_info, and zipcode_metadata. See the example files in this repository for their formats. For zipcode_bound_geoJson and zipcode_bound_info, you need to have the ZCTA5 GeoJSON file and choose the zipcode boundaries that you want for the heatmap. Then, use jQuery to load these data simultaneously:
 ```JavaScript
 var data = {};
 // Start loading data simultaneously
