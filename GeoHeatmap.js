@@ -16,6 +16,7 @@
     // Variables
     //
     var google_map;
+    var goole_geometry; //google.maps.geometry.spherical.computeArea()
     var google_map_data;
     var info_window;
     var highlighted_feature;
