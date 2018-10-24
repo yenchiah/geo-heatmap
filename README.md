@@ -2,7 +2,7 @@
 
 Demo: https://yenchiah.github.io/geo-heatmap/GeoHeatmap.html
 
-This JavaScript library is for creating an interactive geographical heatmap. This library uses Google map's [data layer](https://developers.google.com/maps/documentation/javascript/examples/layer-data-dynamic) to show GeoJSON zipcode boundaries. For obtaining the ZCTA5 GeoJSON, please refer to [this project](https://github.com/jgoodall/us-maps). The polygons on the map can be colored by using [d3-scale](https://github.com/d3/d3-scale). One example that uses this library is the [Environmental Health Channel](http://envhealthchannel.org/).
+This JavaScript library is for creating an interactive geographical heatmap. This library uses Google map's [data layer](https://developers.google.com/maps/documentation/javascript/examples/layer-data-dynamic) to show GeoJSON zipcode boundaries. For obtaining the ZCTA5 GeoJSON, please refer to [this project](https://github.com/jgoodall/us-maps). The polygons on the map can be colored by using [d3-scale](https://github.com/d3/d3-scale). One example that uses this library is the [Environmental Health Channel](https://envhealthchannel.org/visualization.html).
 
 # Dependencies
 jQuery (necessary, https://jquery.com/)  
