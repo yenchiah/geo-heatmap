@@ -131,6 +131,18 @@ settings["init_map_zoom"] = 12;
 settings["init_map_center"] = {lat: 40.43, lng: -79.93}; // latitude and longitude
 ```
 
+### "force_two_finger_pan"
+Force the user to pan the map with two fingers. Please refer to [Google Map API](https://developers.google.com/maps/documentation/javascript/interaction) for details of this behavior.
+```JavaScript
+settings["force_two_finger_pan"] = true;
+```
+
+### "zoom_control"
+Show the Google Map zoom control or not.
+```JavaScript
+settings["zoom_control"] = true;
+```
+
 ### "map_saturation"
 The saturation of the base Google map.
 ```JavaScript
