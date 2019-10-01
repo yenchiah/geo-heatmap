@@ -72,6 +72,7 @@
 
     // Style options
     var map_saturation = typeof settings["map_saturation"] === "undefined" ? -80 : settings["map_saturation"];
+    var zoom_control = typeof settings["zoom_control"] === "undefined" ? false : settings["zoom_control"];
 
     // Constants for the zipcode regions
     var ZIPCODE_HIGHLIGHT_STYLE = {
@@ -142,7 +143,7 @@
             google.maps.MapTypeId.TERRAIN
           ]
         },
-        zoomControl: false,
+        zoomControl: zoom_control,
         zoomControlOptions: {
           position: google.maps.ControlPosition.LEFT_TOP
         },
