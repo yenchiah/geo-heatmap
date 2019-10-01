@@ -12,36 +12,16 @@
   <script src="GeoHeatmap.js" type="text/javascript"></script>
   <script src="ColorScaleLegend.js" type="text/javascript"></script>
   <style>
-    #map-container-1 {
+    #map-container {
       position: absolute;
       top: 0;
       bottom: 0;
       left: 0;
-      width: calc(50% - 1px);
-      height: auto;
-      border-right: 1px solid #666666;
-    }
-
-    #map-container-2 {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      right: 0;
-      width: 50%;
+      width: 100%;
       height: auto;
     }
 
-    #color-legend-container-1 {
-      position: absolute;
-      width: 40px;
-      height: 150px;
-      border: 1px solid #666666;
-      right: calc(50% + 20px);
-      z-index: 1;
-      bottom: 20px;
-    }
-
-    #color-legend-container-2 {
+    #color-legend-container {
       position: absolute;
       width: 40px;
       height: 150px;
@@ -69,10 +49,47 @@
   <script type="text/javascript">
     jQuery.support.cors = true;
 
+    // Parse variables in the format of a hash url string
+    function parseVars(str, keep_null_or_undefined_vars) {
+      var vars = {};
+      if (str) {
+        var keyvals = str.split(/[#?&]/);
+        for (var i = 0; i < keyvals.length; i++) {
+          var keyval = keyvals[i].split('=');
+          vars[keyval[0]] = keyval[1];
+        }
+      }
+      // Delete keys with null/undefined values
+      if (!keep_null_or_undefined_vars) {
+        Object.keys(vars).forEach(function (key) {
+          return (vars[key] == null || key == "") && delete vars[key];
+        });
+      }
+      return vars;
+    }
+
+    // Get the parameters from the query string
+    function getQueryParas() {
+      return parseVars(window.location.search);
+    }
+
     function loadData() {
       var data = {};
-      var url_2017 = "http://api.smellpittsburgh.org/api/v2/smell_reports?zipcodes=15221,15218,15222,15219,15201,15224,15213,15232,15206,15208,15217,15207,15260,15104&group_by=zipcode&aggregate=true&start_time=1483246800&end_time=1514782800";
-      var url_2018 = "http://api.smellpittsburgh.org/api/v2/smell_reports?zipcodes=15221,15218,15222,15219,15201,15224,15213,15232,15206,15208,15217,15207,15260,15104&group_by=zipcode&aggregate=true&start_time=1514782800&end_time=1546318800";
+      var query_vars = getQueryParas();
+      var available_years = ["2017", "2018"];
+      var year = available_years[0];
+      if ("year" in query_vars) {
+        var desired_year = query_vars["year"];
+        if (available_years.indexOf(desired_year) !== -1) {
+          year = desired_year;
+        }
+      }
+      var path;
+      if (year == 2017) {
+        path = "http://api.smellpittsburgh.org/api/v2/smell_reports?zipcodes=15221,15218,15222,15219,15201,15224,15213,15232,15206,15208,15217,15207,15260,15104&client_ids=1,3&group_by=zipcode&aggregate=true&start_time=1483246800&end_time=1514782800";
+      } else if (year == 2018) {
+        path = "http://api.smellpittsburgh.org/api/v2/smell_reports?zipcodes=15221,15218,15222,15219,15201,15224,15213,15232,15206,15208,15217,15207,15260,15104&client_ids=1,3&group_by=zipcode&aggregate=true&start_time=1514782800&end_time=1546318800";
+      }
       // Start loading data simultaneously
       $.when(
         // Load the GeoJSON that contains the zipcode boundaries
@@ -87,84 +104,50 @@
         }).fail(function (response) {
           console.log("server error when loading zipcode bound information:", response);
         }),
-        // Load smell reports on 2017
-        $.getJSON(url_2017, function (json) {
-          data["zipcode_metadata_2017"] = json;
+        // Load smell reports
+        $.getJSON(path, function (json) {
+          data["zipcode_metadata"] = json;
         }).fail(function (response) {
           console.log("server error when loading zipcode metadata:", response);
         }),
-        // Load smell reports on 2018
-        $.getJSON(url_2018, function (json) {
-          data["zipcode_metadata_2018"] = json;
-        }).fail(function (response) {
-          console.log("server error when loading zipcode metadata:", response);
-        })
       ).then(function () {
-        init(data);
+        init(data, year);
       });
     }
 
-    function init(data) {
-      var zipcode_metadata_2017 = data["zipcode_metadata_2017"];
-      var zipcode_metadata_2018 = data["zipcode_metadata_2018"];
-      var max_input = 1000;
-      var min_input = 0;
-      var map_saturation = -100;
+    function init(data, year) {
+      var zipcode_metadata = data["zipcode_metadata"];
       var color_scale = d3.scale.linear().domain([0, 0.5, 1]).range(["#deebf7", "#6baed6", "#084594"]).interpolate(d3.interpolateLab);
 
       // Create the geo heatmap object
-      var settings_1 = {
+      var settings = {
         zipcode_bound_geoJson: data["zipcode_bound_geoJson"],
         zipcode_bound_info: data["zipcode_bound_info"],
-        zipcode_metadata: zipcode_metadata_2017,
+        zipcode_metadata: zipcode_metadata,
         color_scale: color_scale,
-        max_input: max_input,
-        min_input: min_input,
-        map_saturation: map_saturation,
+        max_input: 1000,
+        min_input: 0,
+        map_saturation: -100,
         zoom_control: true,
+        force_two_finger_pan: true,
         info_window_html_layout: function (zipcode) {
           var html = "";
           html += "<table>";
           html += "  <tr>";
+          html += "    <td>Year: " + year + "</td>";
+          html += "  </tr>";
+          html += "  <tr>";
           html += "    <td>Zipcode: " + zipcode + "</td>";
           html += "  </tr>";
           html += "  <tr>";
-          html += "    <td>Number of Smell Reports (2017): " + zipcode_metadata_2017[zipcode] + "</td>";
+          html += "    <td>Number of Reports: " + zipcode_metadata[zipcode] + "</td>";
           html += "  </tr>";
           html += "</table>";
           return html;
         }
       };
-      var settings_2 = {
-        zipcode_bound_geoJson: data["zipcode_bound_geoJson"],
-        zipcode_bound_info: data["zipcode_bound_info"],
-        zipcode_metadata: zipcode_metadata_2018,
-        color_scale: color_scale,
-        max_input: max_input,
-        min_input: min_input,
-        map_saturation: map_saturation,
-        zoom_control: true,
-        info_window_html_layout: function (zipcode) {
-          var html = "";
-          html += "<table>";
-          html += "  <tr>";
-          html += "    <td>Zipcode: " + zipcode + "</td>";
-          html += "  </tr>";
-          html += "  <tr>";
-          html += "    <td>Number of Smell Reports (2018): " + zipcode_metadata_2018[zipcode] + "</td>";
-          html += "  </tr>";
-          html += "</table>";
-          return html;
-        }
-      };
-      geo_heatmap_2017 = new edaplotjs.GeoHeatmap("#map-container-1", settings_1);
-      geo_heatmap_2018 = new edaplotjs.GeoHeatmap("#map-container-2", settings_2);
-      color_legned_2017 = new edaplotjs.ColorScaleLegend("#color-legend-container-1", {
-        color_scale: color_scale,
-        top_text: "1000",
-        bottom_text: "0"
-      });
-      color_legned_2018 = new edaplotjs.ColorScaleLegend("#color-legend-container-2", {
+      geo_heatmap = new edaplotjs.GeoHeatmap("#map-container", settings);
+      color_legned = new edaplotjs.ColorScaleLegend("#color-legend-container", {
         color_scale: color_scale,
         top_text: "1000",
         bottom_text: "0"
@@ -176,10 +159,8 @@
 </head>
 
 <body>
-  <div id="map-container-1" class="noselect"></div>
-  <div id="color-legend-container-1" class="noselect"></div>
-  <div id="map-container-2" class="noselect"></div>
-  <div id="color-legend-container-2" class="noselect"></div>
+  <div id="map-container" class="noselect"></div>
+  <div id="color-legend-container" class="noselect"></div>
 </body>
 
 </html>

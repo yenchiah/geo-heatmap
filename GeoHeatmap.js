@@ -73,6 +73,7 @@
     // Style options
     var map_saturation = typeof settings["map_saturation"] === "undefined" ? -80 : settings["map_saturation"];
     var zoom_control = typeof settings["zoom_control"] === "undefined" ? false : settings["zoom_control"];
+    var force_two_finger_pan = typeof settings["force_two_finger_pan"] === "undefined" ? false : settings["force_two_finger_pan"];
 
     // Constants for the zipcode regions
     var ZIPCODE_HIGHLIGHT_STYLE = {
@@ -153,7 +154,7 @@
         },
         scaleControl: true,
         clickableIcons: false,
-        gestureHandling: "greedy"
+        gestureHandling: force_two_finger_pan ? "cooperative" : "greedy"
       });
     }
 
