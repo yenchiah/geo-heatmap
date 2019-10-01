@@ -131,6 +131,12 @@ settings["init_map_zoom"] = 12;
 settings["init_map_center"] = {lat: 40.43, lng: -79.93}; // latitude and longitude
 ```
 
+### "map_saturation"
+The saturation of the base Google map.
+```JavaScript
+settings["map_saturation"] = -100;
+```
+
 ### "color_single"
 The base color to fill in the zipcode regions when there is no color scale.
 ```JavaScript
@@ -173,6 +179,13 @@ The parameters to determine the maximum and minimum percentiles of the input zip
 ```JavaScript
 settings["max_percentile"] = 0.99;
 settings["min_percentile"] = 0.05;
+```
+
+### "max_input" and "min_input"
+The parameters to set the metadata value that maps to color scale 1 and 0. For example, if "max_input" is 1000, the color at scale 1 will map to value 1000 (and also above 1000) in the metadata. If "min_input" is 100, the color at scale 0 will map to value 100 (and also below 100) in the metadata. These two parameters are used to set multiple maps to have a comparable color scale. This setting only works when "scaling_method" is "range".
+```JavaScript
+settings["max_input"] = 1000;
+settings["min_input"] = 100;
 ```
 
 ### "threshold_metadata"
