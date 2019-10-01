@@ -13,6 +13,10 @@
     // The d3.js color scale object for rendering the color legend
     var color_scale = settings["color_scale"];
 
+    // The text for the top and bottom of the color bar
+    var top_text = typeof settings["top_text"] === "undefined" ? "high" : settings["top_text"];
+    var bottom_text = typeof settings["bottom_text"] === "undefined" ? "low" : settings["bottom_text"];
+
     // DOM objects
     var $container = $(container_selector);
 
@@ -27,8 +31,8 @@
     function addLegend() {
       // Add DOM element
       var $legend = $('<div class="color-scale-legend"></div>');
-      var $top_text = $('<div class="legend-top-text legend-text">high</div>');
-      var $bottom_text = $('<div class="legend-bottom-text legend-text">low</div>');
+      var $top_text = $('<div class="legend-top-text legend-text">' + top_text + '</div>');
+      var $bottom_text = $('<div class="legend-bottom-text legend-text">' + bottom_text + '</div>');
       var uuid = uuidv4();
       $legend.append($top_text);
       $legend.append($bottom_text);
@@ -79,7 +83,8 @@
 
     function uuidv4() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        var r = Math.random() * 16 | 0,
+          v = c == 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
       });
     }
@@ -103,10 +108,10 @@
     init();
   };
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// Register to window
-//
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // Register to window
+  //
   if (window.edaplotjs) {
     window.edaplotjs.ColorScaleLegend = ColorScaleLegend;
   } else {

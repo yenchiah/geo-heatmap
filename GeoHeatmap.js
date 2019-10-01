@@ -42,6 +42,8 @@
     var min_output = settings["min_output"]; // to cap the scaled output (only for "zscore" method)
     var max_percentile = settings["max_percentile"]; // to compute the max value for scaling (only for "range" method)
     var min_percentile = settings["min_percentile"]; // to compute the min value for scaling (only for "range" method)
+    var max_input = settings["max_input"]; // to set the metadata value that maps to color scale 1 (only for "range" method)
+    var min_input = settings["min_input"]; // to set the metadata value that maps to color scale 0 (only for "range" method)
 
     // The threshold in metadata for rendering shape
     // Zipcodes that have values below or equal to the threshold will be ignored
@@ -68,6 +70,9 @@
     var info_window_domready_callback = settings["info_window_domready_callback"];
     var info_window_closeclick_callback = settings["info_window_closeclick_callback"];
 
+    // Style options
+    var map_saturation = typeof settings["map_saturation"] === "undefined" ? -80 : settings["map_saturation"];
+
     // Constants for the zipcode regions
     var ZIPCODE_HIGHLIGHT_STYLE = {
       strokeOpacity: 0.7,
@@ -79,27 +84,28 @@
     };
 
     // Constants for the map
-    var MAP_STYLE = [
-      {
-        featureType: "all",
-        stylers: [
-          {saturation: -80}
-        ]
-      }, {
-        featureType: "road.arterial",
-        elementType: "geometry",
-        stylers: [
-          {hue: "#00ffee"},
-          {saturation: 50}
-        ]
-      }, {
-        featureType: "poi.business",
-        elementType: "labels",
-        stylers: [
-          {visibility: "off"}
-        ]
-      }
-    ];
+    var MAP_STYLE = [{
+      featureType: "all",
+      stylers: [{
+        saturation: map_saturation
+      }]
+    }, {
+      featureType: "road.arterial",
+      elementType: "geometry",
+      stylers: [{
+          hue: "#00ffee"
+        },
+        {
+          saturation: 10
+        }
+      ]
+    }, {
+      featureType: "poi.business",
+      elementType: "labels",
+      stylers: [{
+        visibility: "off"
+      }]
+    }];
 
     // DOM objects
     var $container = $(container_selector);
@@ -156,7 +162,9 @@
         zipcode_metadata_nz = scaleToRange(zipcode_metadata, {
           lambda: lambda,
           min_percentile: min_percentile,
-          max_percentile: max_percentile
+          max_percentile: max_percentile,
+          min_input: min_input,
+          max_input: max_input
         });
       } else if (scaling_method === "zscore") {
         zipcode_metadata_nz = scaleToZScore(zipcode_metadata, {
@@ -222,7 +230,9 @@
         for (var i = 0; i < features.length; i++) {
           f = features[i];
           if (f.getProperty("ZCTA5CE10") === previous_highlighted_zipcode) {
-            highlightZipcode({feature: f});
+            highlightZipcode({
+              feature: f
+            });
             break;
           }
         }
@@ -349,8 +359,8 @@
       });
 
       // Scale to the desired range
-      var max_input = percentile(values, max_percentile);
-      var min_input = percentile(values, min_percentile);
+      var max_input = typeof options["max_input"] === "undefined" ? percentile(values, max_percentile) : options["max_input"];
+      var min_input = typeof options["min_input"] === "undefined" ? percentile(values, min_percentile) : options["min_input"];
       var r = (max_output - min_output) / (max_input - min_input);
       for (var key in dict) {
         var v = r * (dict[key] - min_input) + min_output;
@@ -526,10 +536,10 @@
     init();
   };
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// Register to window
-//
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  // Register to window
+  //
   if (window.edaplotjs) {
     window.edaplotjs.GeoHeatmap = GeoHeatmap;
   } else {

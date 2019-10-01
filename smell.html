@@ -31,6 +31,16 @@
       height: auto;
     }
 
+    #color-legend-container-1 {
+      position: absolute;
+      width: 40px;
+      height: 150px;
+      border: 1px solid #666666;
+      right: calc(50% + 20px);
+      z-index: 1;
+      bottom: 20px;
+    }
+
     #color-legend-container-2 {
       position: absolute;
       width: 40px;
@@ -61,6 +71,8 @@
 
     function loadData() {
       var data = {};
+      var url_2017 = "http://api.smellpittsburgh.org/api/v2/smell_reports?zipcodes=15221,15218,15222,15219,15201,15224,15213,15232,15206,15208,15217,15207,15260,15104&group_by=zipcode&aggregate=true&start_time=1483246800&end_time=1514782800";
+      var url_2018 = "http://api.smellpittsburgh.org/api/v2/smell_reports?zipcodes=15221,15218,15222,15219,15201,15224,15213,15232,15206,15208,15217,15207,15260,15104&group_by=zipcode&aggregate=true&start_time=1514782800&end_time=1546318800";
       // Start loading data simultaneously
       $.when(
         // Load the GeoJSON that contains the zipcode boundaries
@@ -75,9 +87,15 @@
         }).fail(function (response) {
           console.log("server error when loading zipcode bound information:", response);
         }),
-        // Load metadata
-        $.getJSON("zipcode_metadata.json", function (json) {
-          data["zipcode_metadata"] = json;
+        // Load smell reports on 2017
+        $.getJSON(url_2017, function (json) {
+          data["zipcode_metadata_2017"] = json;
+        }).fail(function (response) {
+          console.log("server error when loading zipcode metadata:", response);
+        }),
+        // Load smell reports on 2018
+        $.getJSON(url_2018, function (json) {
+          data["zipcode_metadata_2018"] = json;
         }).fail(function (response) {
           console.log("server error when loading zipcode metadata:", response);
         })
@@ -87,28 +105,22 @@
     }
 
     function init(data) {
-      var zipcode_metadata = data["zipcode_metadata"];
+      var zipcode_metadata_2017 = data["zipcode_metadata_2017"];
+      var zipcode_metadata_2018 = data["zipcode_metadata_2018"];
+      var max_input = 1000;
+      var min_input = 0;
+      var map_saturation = -100;
+      var color_scale = d3.scale.linear().domain([0, 0.5, 1]).range(["#deebf7", "#6baed6", "#084594"]).interpolate(d3.interpolateLab);
 
       // Create the geo heatmap object
       var settings_1 = {
         zipcode_bound_geoJson: data["zipcode_bound_geoJson"],
         zipcode_bound_info: data["zipcode_bound_info"],
-        zipcode_metadata: zipcode_metadata,
-        threshold_metadata: 0,
-        lambda: 0.5
-      };
-      geo_heatmap_1 = new edaplotjs.GeoHeatmap("#map-container-1", settings_1);
-
-      // Create the geo heatmap object
-      // We recommend using http://colorbrewer2.org to select the color range
-      var color_scale = d3.scale.linear().domain([0, 0.33, 0.66, 1]).range(["#00a511", "#fff200", "#ff6200", "#ff0000"]).interpolate(d3.interpolateLab);
-      var settings_2 = {
-        zipcode_bound_geoJson: data["zipcode_bound_geoJson"],
-        zipcode_bound_info: data["zipcode_bound_info"],
-        zipcode_metadata: zipcode_metadata,
+        zipcode_metadata: zipcode_metadata_2017,
         color_scale: color_scale,
-        max_percentile: 0.99,
-        min_percentile: 0.05,
+        max_input: max_input,
+        min_input: min_input,
+        map_saturation: map_saturation,
         info_window_html_layout: function (zipcode) {
           var html = "";
           html += "<table>";
@@ -116,27 +128,44 @@
           html += "    <td>Zipcode: " + zipcode + "</td>";
           html += "  </tr>";
           html += "  <tr>";
-          html += "    <td>Custom Data: " + zipcode_metadata[zipcode] + "</td>";
+          html += "    <td>Number of Smell Reports (2017): " + zipcode_metadata_2017[zipcode] + "</td>";
           html += "  </tr>";
           html += "</table>";
           return html;
-        },
-        mouseover_callback: function (zipcode) {
-          //console.log("mouseover on zipcode: " + zipcode);
-        },
-        mouseout_callback: function (zipcode) {
-          //console.log("mouseout on zipcode: " + zipcode);
-        },
-        info_window_domready_callback: function (zipcode) {
-          console.log("info window domready for zipcode: " + zipcode);
-        },
-        info_window_closeclick_callback: function (zipcode) {
-          console.log("info window closeclick for zipcode: " + zipcode);
         }
       };
-      geo_heatmap_2 = new edaplotjs.GeoHeatmap("#map-container-2", settings_2);
-      color_legned_2 = new edaplotjs.ColorScaleLegend("#color-legend-container-2", {
-        color_scale: color_scale
+      var settings_2 = {
+        zipcode_bound_geoJson: data["zipcode_bound_geoJson"],
+        zipcode_bound_info: data["zipcode_bound_info"],
+        zipcode_metadata: zipcode_metadata_2018,
+        color_scale: color_scale,
+        max_input: max_input,
+        min_input: min_input,
+        map_saturation: map_saturation,
+        info_window_html_layout: function (zipcode) {
+          var html = "";
+          html += "<table>";
+          html += "  <tr>";
+          html += "    <td>Zipcode: " + zipcode + "</td>";
+          html += "  </tr>";
+          html += "  <tr>";
+          html += "    <td>Number of Smell Reports (2018): " + zipcode_metadata_2018[zipcode] + "</td>";
+          html += "  </tr>";
+          html += "</table>";
+          return html;
+        }
+      };
+      geo_heatmap_2017 = new edaplotjs.GeoHeatmap("#map-container-1", settings_1);
+      geo_heatmap_2018 = new edaplotjs.GeoHeatmap("#map-container-2", settings_2);
+      color_legned_2017 = new edaplotjs.ColorScaleLegend("#color-legend-container-1", {
+        color_scale: color_scale,
+        top_text: "1000",
+        bottom_text: "0"
+      });
+      color_legned_2018 = new edaplotjs.ColorScaleLegend("#color-legend-container-2", {
+        color_scale: color_scale,
+        top_text: "1000",
+        bottom_text: "0"
       });
     }
 
@@ -146,6 +175,7 @@
 
 <body>
   <div id="map-container-1" class="noselect"></div>
+  <div id="color-legend-container-1" class="noselect"></div>
   <div id="map-container-2" class="noselect"></div>
   <div id="color-legend-container-2" class="noselect"></div>
 </body>
