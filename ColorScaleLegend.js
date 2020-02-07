@@ -1,6 +1,6 @@
 /*************************************************************************
  * GitHub: https://github.com/yenchiah/geo-heatmap
- * Version: v1.16
+ * Version: v1.17
  *************************************************************************/
 
 (function () {
@@ -46,6 +46,12 @@
       // Parameters
       var w = $legend.width();
       var h = $legend.height();
+      if (typeof w === "undefined" || w == 0) {
+        w = 40;
+      }
+      if (typeof h === "undefined" || h == 0) {
+        h = 150;
+      }
       var center_x = w / 2;
       var margin_t = 25; // distance between color bar and top border
       var margin_b = 23; // distance between color bar and bottom border
