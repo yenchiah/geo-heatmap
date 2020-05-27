@@ -76,8 +76,8 @@
     function loadData() {
       var data = {};
       var query_vars = getQueryParas();
-      var available_years = ["2017", "2018"];
-      var year = null;
+      var available_years = ["2017", "2018", "2019"];
+      var year = available_years[2];
       var max_input = 1000;
       if ("year" in query_vars) {
         var desired_year = query_vars["year"];
@@ -86,13 +86,12 @@
         }
       }
       var path;
-      if (year == 2017) {
+      if (year == "2017") {
         path = "http://api.smellpittsburgh.org/api/v2/smell_reports?zipcodes=15221,15218,15222,15219,15201,15224,15213,15232,15206,15208,15217,15207,15260,15104&client_ids=1,3&group_by=zipcode&aggregate=true&start_time=1483246800&end_time=1514782800";
-      } else if (year == 2018) {
+      } else if (year == "2018") {
         path = "http://api.smellpittsburgh.org/api/v2/smell_reports?zipcodes=15221,15218,15222,15219,15201,15224,15213,15232,15206,15208,15217,15207,15260,15104&client_ids=1,3&group_by=zipcode&aggregate=true&start_time=1514782800&end_time=1546318800";
-      } else {
-        max_input = 4000
-        path = "http://api.smellpittsburgh.org/api/v2/smell_reports?zipcodes=15221,15218,15222,15219,15201,15224,15213,15232,15206,15208,15217,15207,15260,15104&client_ids=1,3&group_by=zipcode&aggregate=true&start_time=1477972560&end_time=1561953360";
+      } else if (year == "2019") {
+        path = "zipcode_metadata.json";
       }
       // Start loading data simultaneously
       $.when(
@@ -153,7 +152,7 @@
       geo_heatmap = new edaplotjs.GeoHeatmap("#map-container", settings);
       color_legned = new edaplotjs.ColorScaleLegend("#color-legend-container", {
         color_scale: color_scale,
-        top_text: max_input.toString(),
+        top_text: ">" + max_input,
         bottom_text: "0"
       });
     }
